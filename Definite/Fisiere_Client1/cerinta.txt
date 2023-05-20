@@ -1,0 +1,30 @@
+Clientul se autentifica prin cont, trimitand server-ului o lista cu fisierele pe care le publica,
+si primeste lista tuturor fisierelor publicate de catre ceilalti clienti autentificati;
+Cand un client se autentifica, ceilalti clienti autentificati primesc o notificare de adaugare a acesuia, impreuna cu lista de fisiere pe care o publica;
+Cand un client isi incheie sesiunea cu server-ul, aceste ii confirma incheierea sesiunii si notifica ceilalti clienti autentificati sa stearga din lista clientul respectiv;
+Un client poate solocita server-ului descarcarea unui fisier de la alti clienti;
+Server-ul solicita detinatorului fisierului respetiv citirea continutului acestuia;
+Ulterior, server-ul livreaza continutul fisierului clientului care l-a solicitat;
+Clientul salveaza fisierul in sistemul sau de fisiere;
+Fiecare client va avea un director gazda expus, care va fi monitorizat;
+La adaugarea unui nou fisier in acest director, clientul va notifica prin intermediul server-ului adaugarea fisierului;
+La stergerea unui fisier din acest director, clientul va notifica in mod similar ceilalti clienti prin intermediul server-ului.
+
+Client:
+-trimite date de logare, fisierele pe care le publica
+-primeste lista fisierelor expuse de restul clientilor
+-primeste notificare atunci cand se conecteaza alt client, contine numele si lista de fisiere publicate
+-trimite notificare serverului ca inchide sesiunea
+-primeste notificare cand se deconecteaza alt client
+-solicita descarcarea unui fisier de alt client, dupa confirmare primeste de la server fisierul, il stocheaza
+-primeste solicitarea de descarcare a unui fisier
+-are un director gazda expus, este monitorizat
+-cand se modifica directorul gazda, notifica serverului
+
+Server:
+-primeste datele de logare si fisierele publicate de catre client
+-trimite clientului logat fisierele expuse in acel moment de catre clientii conectati
+-trimite notificare celorlalti clienti atunci cand se conecteaza un client, continand lista de fisiere expuse si numele
+-cand serverul primeste notificarea ca un client s-a deconectat, trimite notificare clientilor care sunt conectati
+-primeste notificarea ca un client doreste sa descarce un fisier, serverul notifica clientul detinator, primeste acordul iar serverul trimite fisierul celui care l-a cerut
+-primeste notificarea pentru adaugare si stergere a unui fisier din directorul gazda, ulterior notifica restul clientilor de schimbare

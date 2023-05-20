@@ -68,7 +68,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             # se primeste continutul fisierului de la server si se salveaza in sistemul de fisiere
             data = s.recv(1024)
-            print(data);
+            print(data)
             # if data == b"404":
             #     print(f"Fisierul {file_name} nu exista.")
             # else:
