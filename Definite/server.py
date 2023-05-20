@@ -1,19 +1,80 @@
 import socket
 import threading
 import json
-
+import os
 HOST = 'localhost'
 PORT = 8080
-clients = {}
-clients_lock = threading.Lock()
+clients = []
+folder_path = "D:\Proiect Retele\Proiect-Retele-Nr1\Definite\Fisiere_Server"
+
 
 
 def handle_client(conn, addr):
-    pass
+    
+    data = conn.recv(1024).decode().strip()
+    
+    if len(data) > 0:
+        message = json.loads(data)
+
+    username = message.get("username")
+    clients.append({"username":username, "files":[]})
+
+    while True:
+        data = conn.recv(1024).decode().strip
+        if len(data) >0:
+            message = json.loads(data)
+    
+        request = message.get("type")
+        
+        if not data:
+            break
+
+        if request == "fileNumber":
+            fileNumber = request.get("number")
+            for i in range(1,fileNumber):
+                file_name=conn.recv(1024).decode().strip()
+                client = next((client for client in clients if client["username"]==username),None)
+                client["files"].append(file_name)
+
+                save_file_path = folder_path + "/" + file_name
+
+                with open(save_file_path,'wb') as file:
+                    while True:
+                        data = conn.recv(1024)
+                        if not data:
+                            break
+                    file.write(data)
+
+        elif request == "delete":
+            client = next((client for client in clients if client["username"]==username),None)
+            client['files'].remove(file_name)
+
+        elif request == "download":
+            download_name = message.get('file')
+            message = {"accept":True}
+            conn.sendall(json.dumps(message).encode())
+            send_file(conn,download_name) 
+        elif request == "list":
+            message = {'list':[x for x in clients if x["username"]!=username]}
+            conn.sendall(json.dumps(message).encode())
+        elif request == "disconnect":
+            break
+
+    conn.close()
 
 
 def authenticate_user(username):
     return True
+
+def send_file(conn,file_name):
+    file_path = folder_path + "/" + file_name
+    with open(file_path,'rb') as file:
+        while True:
+            data = file.read(1024)
+            if not data:
+                break
+            conn.sendall(data)
+        print(f'Fisierul {file_name} transmis cu succes')
 
 def start_server():
 

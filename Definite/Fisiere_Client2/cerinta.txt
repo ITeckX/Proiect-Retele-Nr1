@@ -11,15 +11,15 @@ La adaugarea unui nou fisier in acest director, clientul va notifica prin interm
 La stergerea unui fisier din acest director, clientul va notifica in mod similar ceilalti clienti prin intermediul server-ului.
 
 Client:
--/trimite date de logare, fisierele pe care le publica
--/primeste lista fisierelor expuse de restul clientilor
---primeste notificare atunci cand se conecteaza alt client, contine numele si lista de fisiere publicate
--/trimite notificare serverului ca inchide sesiunea
---primeste notificare cand se deconecteaza alt client
--/solicita descarcarea unui fisier de alt client, dupa confirmare primeste de la server fisierul, il stocheaza
---primeste solicitarea de descarcare a unui fisier
--/are un director gazda expus, este monitorizat
--/cand se modifica directorul gazda, notifica serverului
+-trimite date de logare, fisierele pe care le publica
+-primeste lista fisierelor expuse de restul clientilor
+-primeste notificare atunci cand se conecteaza alt client, contine numele si lista de fisiere publicate
+-trimite notificare serverului ca inchide sesiunea
+-primeste notificare cand se deconecteaza alt client
+-solicita descarcarea unui fisier de alt client, dupa confirmare primeste de la server fisierul, il stocheaza
+-primeste solicitarea de descarcare a unui fisier
+-are un director gazda expus, este monitorizat
+-cand se modifica directorul gazda, notifica serverului
 
 Server:
 -primeste datele de logare si fisierele publicate de catre client
