@@ -9,6 +9,8 @@ folder_path = "D:\Proiect Retele\Proiect-Retele-Nr1\Definite\Fisiere_Server"
 
 
 
+
+
 def handle_client(conn, addr):
     
     data = conn.recv(1024).decode().strip()
@@ -20,7 +22,8 @@ def handle_client(conn, addr):
     clients.append({"username":username, "files":[]})
 
     while True:
-        data = conn.recv(1024).decode().strip
+        data = conn.recv(1024).decode().strip()
+        print(data)
         if len(data) >0:
             message = json.loads(data)
     
@@ -29,21 +32,34 @@ def handle_client(conn, addr):
         if not data:
             break
 
-        if request == "fileNumber":
-            fileNumber = request.get("number")
-            for i in range(1,fileNumber):
-                file_name=conn.recv(1024).decode().strip()
-                client = next((client for client in clients if client["username"]==username),None)
-                client["files"].append(file_name)
+        if request == "file":
+            conn.sendall(json.dumps({"success":True}).encode())
+          
+            file_name=conn.recv(1024).decode().strip()
+            print(file_name)
+            client = next((client for client in clients if client["username"]==username),None)
+            client["files"].append(file_name)
 
-                save_file_path = folder_path + "/" + file_name
+            save_file_path = folder_path + "/" + file_name
 
-                with open(save_file_path,'wb') as file:
-                    while True:
-                        data = conn.recv(1024)
-                        if not data:
-                            break
-                    file.write(data)
+            with open(save_file_path,'wb') as file:
+                while True:
+                    over_rec = conn.recv(1024).decode().strip()
+                    print(over_rec)
+                    over = json.loads(over_rec).get("success")
+                    print(f"Over: {str(over)}")
+                    conn.sendall(json.dumps({"success":False}).encode())
+                    if over:
+                        print("finished")
+                        break
+                    data = conn.recv(1024)
+                    print(data.decode().strip()+'/')
+                 
+                file.write(data)
+                message = {"success":True}
+                conn.sendall(json.dumps(message).encode())
+                
+                
 
         elif request == "delete":
             client = next((client for client in clients if client["username"]==username),None)

@@ -8,16 +8,34 @@ PORT = 8080
 files_dir = []
 
 def send_file(file_path,s):
+    message = {"type":"file"}
+    s.sendall(json.dumps(message).encode())
+    success = json.loads(s.recv(1024).decode().strip())
+
+    file_name = os.path.basename(file_path)
+    s.sendall(file_name.encode())
+    print("sent")
+
     with open(file_path,'rb') as file:
-        file_name = os.path.basename(file_path)
-        s.sendall(file_name.encode())
         files_dir.append(file_name)
+        success = False
         while True:
             data = file.read(1024)
             if not data:
+                print("finished")
+                success = True
+                s.sendall(json.dumps({"success":success}).encode())
                 break
-            s.sendall(data)
+            s.sendall(json.dumps({"success":success}).encode())
+            success2 = json.loads(s.recv(1024).decode().strip())
+            s.sendall(data) 
+            
+
+            
+        success = json.loads(s.recv(1024).decode().strip())
+        #my_lambda = lambda success: "cu success" if success else "fara success"
         print(f'Fisierul {file_name} transmis cu succes')
+
 
 def check_folder(s):
     folder_files = os.listdir(folder_path)
@@ -59,8 +77,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         folder_path = folder_path.replace('"', '')
 
         if os.path.isdir(folder_path):
-            message = {"type":"fileNumber","number":len(os.listdir(folder_path))}
-            s.sendall(json.dumps(message).encode())
+            #message = {"type":"fileNumber","number":len(os.listdir(folder_path))}
+            #s.sendall(json.dumps(message).encode())
             for root, dirs, files in os.walk(folder_path):
                 for file in files:
                     file_path = os.path.join(root, file)

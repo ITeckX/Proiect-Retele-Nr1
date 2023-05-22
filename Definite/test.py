@@ -61,10 +61,13 @@ import threading
 # if __name__ == '__main__':
 #     main()
 
-clients = []
+# clients = []
 
-clients.append({"name":"calin","muie":'Muie'})
-clients.append({"name":"calin2"})
-clients.append({"name":"calin3"})
+# clients.append({"name":"calin","muie":'Muie'})
+# clients.append({"name":"calin2"})
+# clients.append({"name":"calin3"})
 
-print(clients)
+# print(clients)
+
+message = {"success":True}
+print(type(message) is dict)
