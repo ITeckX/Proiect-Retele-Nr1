@@ -32,32 +32,42 @@ def recieve_file(conn,message,username):
                 mess = {'success':"over"}
                 conn.sendall(json.dumps(mess).encode())
                 return
-    # conn.sendall(json.dumps({"success":True}).encode())
-          
-    #         file_name=conn.recv(1024).decode().strip()
-    #         print(file_name)
-    #         client = next((client for client in clients if client["username"]==username),None)
-    #         client["files"].append(file_name)
 
-    #         save_file_path = folder_path + "/" + file_name
-
-    #         with open(save_file_path,'wb') as file:
-    #             while True:
-    #                 over_rec = conn.recv(1024).decode().strip()
-    #                 print(over_rec)
-    #                 over = json.loads(over_rec).get("success")
-    #                 print(f"Over: {str(over)}")
-    #                 conn.sendall(json.dumps({"success":False}).encode())
-    #                 if over:
-    #                     print("finished")
-    #                     break
-    #                 data = conn.recv(1024)
-    #                 print(data.decode().strip()+'/')
-                 
-    #             file.write(data)
-    #             message = {"success":True}
-    #             conn.sendall(json.dumps(message).encode())
+def send_file(file_name,conn):
+ 
+    file_path = folder_path + "/" + file_name
+    message = {"type": "file","file_name":file_name}
+    conn.sendall(json.dumps(message).encode())
+    print("sent")
     
+    message = conn.recv(1024).decode().strip()
+    success = json.loads(message).get('success')
+    print(success)
+    if not success:
+        print("eroare")
+        return
+    
+
+    with open(file_path,'rb') as file:
+
+        while True:
+            data = file.read(512)
+            content = data.decode().strip()
+
+            if not data:
+                message = {"status":"over"}
+            else:
+                message = {"data":content,"status":"ok"}
+
+            conn.sendall(json.dumps(message).encode())
+
+            message=conn.recv(1024).decode().strip()#
+            success = json.loads(message).get("success")
+            print(success)
+            
+            if success == 'over':
+                print("Finish")
+                return  
 
 
 
@@ -94,31 +104,27 @@ def handle_client(conn, addr):
 
 
         elif request == "download":
-            download_name = message.get('file')
-            message = {"accept":True}
-            conn.sendall(json.dumps(message).encode())
-            send_file(conn,download_name) 
+            download_name = message.get('filename')
+            #message = {"accept":True}
+            #conn.sendall(json.dumps(message).encode())
+            send_file(download_name,conn) 
         elif request == "list":
             message = {'list':[x for x in clients if x["username"]!=username]}
             conn.sendall(json.dumps(message).encode())
         elif request == "disconnect":
             break
 
+    client = next((client for client in clients if client["username"]==username),None)
+    for file in client['files']:
+        os.remove(folder_path + "/" + file)
+    clients.remove(client)
     conn.close()
 
 
 def authenticate_user(username):
     return True
 
-def send_file(conn,file_name):
-    file_path = folder_path + "/" + file_name
-    with open(file_path,'rb') as file:
-        while True:
-            data = file.read(1024)
-            if not data:
-                break
-            conn.sendall(data)
-        print(f'Fisierul {file_name} transmis cu succes')
+
 
 def start_server():
 
