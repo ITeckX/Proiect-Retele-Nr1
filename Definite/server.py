@@ -8,12 +8,63 @@ clients = []
 folder_path = "D:\Proiect Retele\Proiect-Retele-Nr1\Definite\Fisiere_Server"
 
 
+def recieve_file(conn,message,username):
+    file_name = message.get('file_name')
+    client = next((client for client in clients if client["username"]==username),None)
+    client["files"].append(file_name)
+    save_file_path = folder_path + "/" + file_name
+    
+
+    with open(save_file_path,'wb') as file:
+        while True:
+            mess = {'success':"ok"}
+            conn.sendall(json.dumps(mess).encode())
+
+            rec = conn.recv(1024).decode().strip()
+            print(rec)
+            mess = json.loads(rec)
+
+            if mess.get('status') == 'ok':
+                data = mess.get('data').encode()
+                file.write(data)
+
+            elif mess.get('status') == 'over':
+                mess = {'success':"over"}
+                conn.sendall(json.dumps(mess).encode())
+                return
+    # conn.sendall(json.dumps({"success":True}).encode())
+          
+    #         file_name=conn.recv(1024).decode().strip()
+    #         print(file_name)
+    #         client = next((client for client in clients if client["username"]==username),None)
+    #         client["files"].append(file_name)
+
+    #         save_file_path = folder_path + "/" + file_name
+
+    #         with open(save_file_path,'wb') as file:
+    #             while True:
+    #                 over_rec = conn.recv(1024).decode().strip()
+    #                 print(over_rec)
+    #                 over = json.loads(over_rec).get("success")
+    #                 print(f"Over: {str(over)}")
+    #                 conn.sendall(json.dumps({"success":False}).encode())
+    #                 if over:
+    #                     print("finished")
+    #                     break
+    #                 data = conn.recv(1024)
+    #                 print(data.decode().strip()+'/')
+                 
+    #             file.write(data)
+    #             message = {"success":True}
+    #             conn.sendall(json.dumps(message).encode())
+    
+
 
 
 
 def handle_client(conn, addr):
     
-    data = conn.recv(1024).decode().strip()
+    data = conn.recv(1024).decode().strip()#
     
     if len(data) > 0:
         message = json.loads(data)
@@ -33,34 +84,8 @@ def handle_client(conn, addr):
             break
 
         if request == "file":
-            conn.sendall(json.dumps({"success":True}).encode())
-          
-            file_name=conn.recv(1024).decode().strip()
-            print(file_name)
-            client = next((client for client in clients if client["username"]==username),None)
-            client["files"].append(file_name)
-
-            save_file_path = folder_path + "/" + file_name
-
-            with open(save_file_path,'wb') as file:
-                while True:
-                    over_rec = conn.recv(1024).decode().strip()
-                    print(over_rec)
-                    over = json.loads(over_rec).get("success")
-                    print(f"Over: {str(over)}")
-                    conn.sendall(json.dumps({"success":False}).encode())
-                    if over:
-                        print("finished")
-                        break
-                    data = conn.recv(1024)
-                    print(data.decode().strip()+'/')
-                 
-                file.write(data)
-                message = {"success":True}
-                conn.sendall(json.dumps(message).encode())
+            recieve_file(conn,message,username)
                 
-                
-
         elif request == "delete":
             client = next((client for client in clients if client["username"]==username),None)
             client['files'].remove(file_name)

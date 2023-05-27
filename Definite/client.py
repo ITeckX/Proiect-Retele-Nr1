@@ -8,33 +8,67 @@ PORT = 8080
 files_dir = []
 
 def send_file(file_path,s):
-    message = {"type":"file"}
+    
+    # message = {"type":"file"}
+    # file_name = os.path.basename(file_path)
+    # s.sendall(file_name.encode())
+    # 
+    message = {"type": "file","file_name":os.path.basename(file_path)}
     s.sendall(json.dumps(message).encode())
-    success = json.loads(s.recv(1024).decode().strip())
-
-    file_name = os.path.basename(file_path)
-    s.sendall(file_name.encode())
     print("sent")
+    
+    message = s.recv(1024).decode().strip()
+    success = json.loads(message).get('success')
+    print(success)
+    if not success:
+        print("eroare")
+        return
+    
 
     with open(file_path,'rb') as file:
-        files_dir.append(file_name)
-        success = False
+        files_dir.append(os.path.basename(file_path))
+
         while True:
-            data = file.read(1024)
+            data = file.read(512)
+            content = data.decode().strip()
+
             if not data:
-                print("finished")
-                success = True
-                s.sendall(json.dumps({"success":success}).encode())
-                break
-            s.sendall(json.dumps({"success":success}).encode())
-            success2 = json.loads(s.recv(1024).decode().strip())
-            s.sendall(data) 
+                message = {"status":"over"}
+            else:
+                message = {"data":content,"status":"ok"}
+
+            s.sendall(json.dumps(message).encode())
+
+            message=s.recv(1024).decode().strip()
+            success = json.loads(message).get("success")
+            print(success)
+            
+            if success == 'over':
+                print("Finish")
+                return  
+
+
+
+
+    # with open(file_path,'rb') as file:
+    #     files_dir.append(file_name)
+    #     success = False
+    #     while True:
+    #         data = file.read(1024)
+    #         if not data:
+    #             print("finished")
+    #             success = True
+    #             s.sendall(json.dumps({"success":success}).encode())
+    #             break
+    #         s.sendall(json.dumps({"success":success}).encode())
+    #         success2 = json.loads(s.recv(1024).decode().strip())
+    #         s.sendall(data) 
             
 
             
-        success = json.loads(s.recv(1024).decode().strip())
-        #my_lambda = lambda success: "cu success" if success else "fara success"
-        print(f'Fisierul {file_name} transmis cu succes')
+    #     success = json.loads(s.recv(1024).decode().strip())
+    #     #my_lambda = lambda success: "cu success" if success else "fara success"
+    #     print(f'Fisierul {file_name} transmis cu succes')
 
 
 def check_folder(s):
@@ -88,11 +122,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         else:
             print("Calea introdusă nu este un folder valid.")
     
-    data = s.recv(1024).decode().strip()
-    if len(data)>0:
-        files_list = json.loads(data)
-    else:
-        print("Nu exista fisiere postate")
+    # data = s.recv(1024).decode().strip()
+    # if len(data)>0:
+    #     files_list = json.loads(data)
+    # else:
+    #     print("Nu exista fisiere postate")
 
     while True:
         check_folder(s)
