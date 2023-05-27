@@ -55,6 +55,7 @@ def send_file(file_path,s):
 def recieve_file(s,folder_path,filename):
     file_name = message.get('file_name')
     save_file_path = folder_path + "/" + filename
+    files_dir.append(filename)
     a = s.recv(1024).decode().strip()
 
     with open(save_file_path,'wb') as file:
@@ -133,7 +134,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
         if command == "download":
             filename = input("Introduceti numele fisierului dorit: ")
-            
+
             message = {"type":"download","filename":filename}
             s.sendall(json.dumps(message).encode())
             recieve_file(s,folder_path,filename)
