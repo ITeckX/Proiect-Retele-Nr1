@@ -81,10 +81,12 @@ def send_file(file_path,s):
 
 def check_folder(s):
     folder_files = os.listdir(folder_path)
-
+    print(f'Folder files: {folder_files}')
+    print(f'Files dir: {files_dir}')
+    files_to_send = []
     for file_name in folder_files:
         file_path = os.path.join(folder_path,file_name)
-        files_to_send = []
+        
 
         if os.path.isfile(file_path) and file_name not in files_dir:
             files_to_send.append(file_path)
