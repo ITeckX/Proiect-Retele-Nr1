@@ -27,4 +27,4 @@ Server:
 -trimite notificare celorlalti clienti atunci cand se conecteaza un client, continand lista de fisiere expuse si numele
 -cand serverul primeste notificarea ca un client s-a deconectat, trimite notificare clientilor care sunt conectati
 -primeste notificarea ca un client doreste sa descarce un fisier, serverul notifica clientul detinator, primeste acordul iar serverul trimite fisierul celui care l-a cerut
--primeste notificarea pentru adaugare si stergere a unui fisier din directorul gazda, ulterior notifica restul clientilor de schimbare
+-primeste notificarea pentru adaugare si stergere a unui fisier din directorul gazda, 

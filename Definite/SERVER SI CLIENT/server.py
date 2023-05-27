@@ -88,7 +88,10 @@ def handle_client(conn, addr):
                 
         elif request == "delete":
             client = next((client for client in clients if client["username"]==username),None)
-            client['files'].remove(file_name)
+            client['files'].remove(message.get('filename'))
+            os.remove(folder_path + "/" + message.get('filename'))
+        
+
 
         elif request == "download":
             download_name = message.get('file')
