@@ -7,6 +7,14 @@ PORT = 8080
 
 files_dir = []
 
+def list_files(s):
+    message = {"type":"list"}
+    s.sendall(json.dumps(message).encode())
+    data=s.recv(1024).decode().strip()
+    if len(data) > 0:
+        message = json.loads(data)
+    print(message.get("list"))
+
 def send_file(file_path,s):
     
     # message = {"type":"file"}
@@ -79,14 +87,13 @@ def check_folder(s):
         files_to_send = []
 
         if os.path.isfile(file_path) and file_name not in files_dir:
-            print(f"Trimitere fisier {file_name} catre server")
             files_to_send.append(file_path)
             
 
     if files_to_send:
-        message = {"type":"fileNumber","number":len(files_to_send)}
-
+        
         for file in files_to_send:
+            print(f"Trimitere fisier {file} catre server")
             send_file(file,s)
 
         files_to_send.clear()
@@ -107,7 +114,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.sendall(json.dumps(message).encode())
 
     while True:
-        folder_path = r"" +  input("Introdu calea către director: ")
+        folder_path = r""+input("Introdu calea către director: ")
         folder_path = folder_path.replace('"', '')
 
         if os.path.isdir(folder_path):
@@ -122,12 +129,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         else:
             print("Calea introdusă nu este un folder valid.")
     
-    # data = s.recv(1024).decode().strip()
-    # if len(data)>0:
-    #     files_list = json.loads(data)
-    # else:
-    #     print("Nu exista fisiere postate")
-
+    list_files(s)
     while True:
         check_folder(s)
 
@@ -159,12 +161,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # elif command == "stergere":
         #     pass
         elif command == "list":
-            message = {"type":"list"}
-            s.sendall(json.dumps(message).encode())
-            data=s.recv(1024).decode().strip()
-            if len(data) > 0:
-                message = json.loads(data)
-            print(message.get("list"))
+            list_files(s)
 
         elif command == "iesire":
             message = {"type":"disconnect"}
@@ -172,5 +169,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             break
 
     print("Conexiune incheiata")
-    
     
